@@ -1,0 +1,35 @@
+version: '3.7'
+services:
+  redis:
+    image: redis
+    command: redis-server
+    ports:
+      - "14000:6379"
+  db:
+    image: postgres
+    volumes:
+      - test_volume:/var/lib/postgresql
+    environment:
+      - POSTGRES_USER=tutorial
+      - POSTGRES_PASSWORD=tutorial
+      - POSTGRES_DB=tutorial
+    ports:
+      - "127.0.0.1:21003:5432"
+  web:
+    container_name: web
+    build: .
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8600
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:8600:8600"
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+  
+volumes:
+  test_volume:
+    external: true
